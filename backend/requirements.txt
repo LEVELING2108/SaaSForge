@@ -14,5 +14,5 @@ httpx==0.26.0
 celery==5.3.6
 redis==5.0.1
 sentry-sdk[fastapi]==1.40.0
-supabase==2.3.4
+supabase==2.4.0
 python-dotenv==1.0.0
