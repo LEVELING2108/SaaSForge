@@ -10,8 +10,6 @@
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
-![GitHub stars](https://img.shields.io/github/stars/LEVELING2108/SaaSForge?style=social)
-![GitHub forks](https://img.shields.io/github/forks/LEVELING2108/SaaSForge?style=social)
 ![GitHub last commit](https://img.shields.io/github/last-commit/LEVELING2108/SaaSForge)
 ![GitHub repo size](https://img.shields.io/github/repo-size/LEVELING2108/SaaSForge)
 
