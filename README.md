@@ -1,4 +1,27 @@
 
+# 🚀 SaaSForge
+
+![Next.js](https://img.shields.io/badge/Next.js%2014-000000?style=for-the-badge&logo=next.js&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+![GitHub stars](https://img.shields.io/github/stars/LEVELING2108/SaaSForge?style=social)
+![GitHub forks](https://img.shields.io/github/forks/LEVELING2108/SaaSForge?style=social)
+![GitHub last commit](https://img.shields.io/github/last-commit/LEVELING2108/SaaSForge)
+![GitHub repo size](https://img.shields.io/github/repo-size/LEVELING2108/SaaSForge)
+
+![Stripe](https://img.shields.io/badge/Stripe-626CD6?style=flat&logo=stripe&logoColor=white)
+![Clerk](https://img.shields.io/badge/Clerk-6C47FF?style=flat)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat&logo=vercel&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)
+
+---
+
 ## 🚀 Tech Stack
 
 ### Frontend
