@@ -17,7 +17,8 @@
       "Bash(gh *)",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "WebFetch(github.com)"
+      "WebFetch(github.com)",
+      "Bash(mkdir *)"
     ]
   },
   "$version": 3

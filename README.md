@@ -10,6 +10,9 @@
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+![Backend CI](https://img.shields.io/github/actions/workflow/status/LEVELING2108/SaaSForge/backend-ci.yml?label=backend&logo=python)
+![Frontend CI](https://img.shields.io/github/actions/workflow/status/LEVELING2108/SaaSForge/frontend-ci.yml?label=frontend&logo=next.js)
+![Docker](https://img.shields.io/github/actions/workflow/status/LEVELING2108/SaaSForge/docker-publish.yml?label=docker&logo=docker)
 ![GitHub last commit](https://img.shields.io/github/last-commit/LEVELING2108/SaaSForge)
 ![GitHub repo size](https://img.shields.io/github/repo-size/LEVELING2108/SaaSForge)
 
