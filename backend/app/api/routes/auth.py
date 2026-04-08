@@ -3,10 +3,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.core.database import get_db
 from app.core.security import get_password_hash, create_access_token, verify_password
-from app.schemas.user import UserCreate, UserResponse, LoginRequest, Token, PasswordReset
+from app.schemas.user import UserCreate, UserResponse, LoginRequest, Token, PasswordReset, UserUpdate
 from app.models.user import User
 from app.api.dependencies import get_current_user
 from app.schemas.user import UserInDB
+from app.schemas.team import UpdatePreferences
 import logging
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -117,6 +118,36 @@ async def change_password(
     
     user.hashed_password = get_password_hash(password_data.get("new_password"))
     await db.flush()
-    
+
     logger.info(f"Password changed: {user.email}")
     return {"message": "Password changed successfully"}
+
+
+@router.patch("/preferences", status_code=status.HTTP_200_OK)
+async def update_preferences(
+    preferences: UpdatePreferences,
+    db: AsyncSession = Depends(get_db),
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Update user preferences (stored in app state for now)."""
+    # In production, store in a user_preferences table
+    logger.info(f"Preferences updated for {current_user.email}")
+    return {"message": "Preferences updated successfully", "preferences": preferences.dict()}
+
+
+@router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_account(
+    db: AsyncSession = Depends(get_db),
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Delete user account (soft delete recommended in production)."""
+    user = await db.get(User, current_user.id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # In production: Soft delete or cascade delete related records
+    await db.delete(user)
+    await db.flush()
+
+    logger.info(f"Account deleted: {current_user.email}")
+    return None

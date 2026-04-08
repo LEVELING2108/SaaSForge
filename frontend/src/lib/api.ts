@@ -29,27 +29,59 @@ export const authService = {
     const response = await api.post('/api/v1/auth/login', { email, password })
     return response.data
   },
-  
+
   register: async (email: string, password: string, full_name?: string) => {
     const response = await api.post('/api/v1/auth/register', { email, password, full_name })
     return response.data
   },
-  
+
   getCurrentUser: async () => {
     const response = await api.get('/api/v1/auth/me')
     return response.data
   },
-  
-  updateProfile: async (data: any) => {
+
+  updateProfile: async (data: { full_name?: string; avatar_url?: string }) => {
     const response = await api.put('/api/v1/auth/me', data)
     return response.data
   },
-  
+
   changePassword: async (current_password: string, new_password: string) => {
-    const response = await api.post('/api/v1/auth/change-password', { 
-      current_password, 
-      new_password 
+    const response = await api.post('/api/v1/auth/change-password', {
+      current_password,
+      new_password
     })
+    return response.data
+  },
+
+  updatePreferences: async (data: { email_notifications?: boolean; two_factor_enabled?: boolean }) => {
+    const response = await api.patch('/api/v1/auth/preferences', data)
+    return response.data
+  },
+
+  deleteAccount: async () => {
+    const response = await api.delete('/api/v1/auth/me')
+    return response.data
+  },
+}
+
+export const teamService = {
+  getMembers: async () => {
+    const response = await api.get('/api/v1/team/members')
+    return response.data
+  },
+
+  inviteMember: async (email: string, role: string = 'member') => {
+    const response = await api.post('/api/v1/team/invite', { email, role })
+    return response.data
+  },
+
+  updateMemberRole: async (memberId: number, role: string) => {
+    const response = await api.patch(`/api/v1/team/members/${memberId}/role`, { role })
+    return response.data
+  },
+
+  removeMember: async (memberId: number) => {
+    const response = await api.delete(`/api/v1/team/members/${memberId}`)
     return response.data
   },
 }

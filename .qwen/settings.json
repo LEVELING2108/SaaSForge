@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(findstr *)",
+      "Bash(npm run *)",
+      "Bash(npm install)",
+      "Bash(python *)",
+      "Bash(ping *)",
+      "Bash(nslookup *)",
+      "Bash(git config *)",
+      "Bash(curl *)",
+      "Bash(git ls-remote *)",
+      "Bash(netsh *)",
+      "Bash(ssh *)",
+      "Bash(git push *)",
+      "Bash(git remote *)",
+      "Bash(gh *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
+    ]
+  },
+  "$version": 3
+}
