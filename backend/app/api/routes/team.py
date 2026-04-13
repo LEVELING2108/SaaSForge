@@ -1,15 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from app.core.database import get_db
-from app.api.dependencies import get_current_user
-from app.schemas.user import UserInDB
-from app.schemas.team import (
-    InviteMemberRequest,
-    UpdateMemberRole,
-    TeamMemberResponse,
-)
 import logging
+
+from app.api.dependencies import get_current_user
+from app.core.database import get_db
+from app.schemas.team import (InviteMemberRequest, TeamMemberResponse,
+                              UpdateMemberRole)
+from app.schemas.user import UserInDB
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/team", tags=["Team"])
 logger = logging.getLogger(__name__)
@@ -19,9 +17,7 @@ mock_team_members = {}
 
 
 @router.get("/members", response_model=list[TeamMemberResponse])
-async def get_team_members(
-    current_user: UserInDB = Depends(get_current_user)
-):
+async def get_team_members(current_user: UserInDB = Depends(get_current_user)):
     """Get all team members for the current user's team."""
     # In production, query the database for team members
     # For now, return mock data
@@ -47,7 +43,7 @@ async def invite_team_member(
     if invite_data.email in mock_team_members:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User already invited to team"
+            detail="User already invited to team",
         )
 
     # In production:

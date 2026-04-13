@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum, Text
-from sqlalchemy.sql import func
 import enum
+
 from app.core.database import Base
+from sqlalchemy import Boolean, Column, DateTime, Enum, Integer, String, Text
+from sqlalchemy.sql import func
 
 
 class SubscriptionTier(enum.Enum):
@@ -25,7 +26,9 @@ class User(Base):
     stripe_subscription_id = Column(String(255), unique=True, nullable=True)
     avatar_url = Column(String(500), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
     last_login = Column(DateTime(timezone=True), nullable=True)
 
     def __repr__(self):
@@ -44,7 +47,9 @@ class Subscription(Base):
     current_period_end = Column(DateTime(timezone=True), nullable=False)
     cancel_at_period_end = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
 
 class AuditLog(Base):

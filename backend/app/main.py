@@ -1,11 +1,12 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+import logging
 from contextlib import asynccontextmanager
+
 import sentry_sdk
+from app.api import api_router
 from app.core.config import settings
 from app.core.database import init_db
-from app.api import api_router
-import logging
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -19,9 +20,9 @@ async def lifespan(app: FastAPI):
     logger.info("Starting SaaS Application...")
     await init_db()
     logger.info("Database initialized")
-    
+
     yield
-    
+
     # Shutdown
     logger.info("Shutting down SaaS Application...")
 

@@ -1,6 +1,7 @@
+import logging
+
 import resend
 from app.core.config import settings
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -29,11 +30,11 @@ async def send_welcome_email(to_email: str, name: str = "User") -> bool:
             <p>Best regards,<br>The {settings.APP_NAME} Team</p>
             """,
         }
-        
+
         email = resend.Emails.send(params)
         logger.info(f"Welcome email sent to {to_email}")
         return True
-    
+
     except Exception as e:
         logger.error(f"Error sending welcome email to {to_email}: {str(e)}")
         return False
@@ -43,7 +44,7 @@ async def send_password_reset_email(to_email: str, reset_token: str) -> bool:
     """Send password reset email."""
     try:
         reset_url = f"https://yourapp.com/reset-password?token={reset_token}"
-        
+
         params = {
             "from": f"{settings.APP_NAME} <{settings.RESEND_FROM_EMAIL}>",
             "to": to_email,
@@ -58,11 +59,11 @@ async def send_password_reset_email(to_email: str, reset_token: str) -> bool:
             <p>Best regards,<br>The {settings.APP_NAME} Team</p>
             """,
         }
-        
+
         email = resend.Emails.send(params)
         logger.info(f"Password reset email sent to {to_email}")
         return True
-    
+
     except Exception as e:
         logger.error(f"Error sending password reset email to {to_email}: {str(e)}")
         return False
@@ -90,11 +91,13 @@ async def send_subscription_confirmation_email(to_email: str, plan: str) -> bool
             <p>Best regards,<br>The {settings.APP_NAME} Team</p>
             """,
         }
-        
+
         email = resend.Emails.send(params)
         logger.info(f"Subscription confirmation email sent to {to_email}")
         return True
-    
+
     except Exception as e:
-        logger.error(f"Error sending subscription confirmation email to {to_email}: {str(e)}")
+        logger.error(
+            f"Error sending subscription confirmation email to {to_email}: {str(e)}"
+        )
         return False
