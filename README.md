@@ -178,7 +178,7 @@ Confirmation email sent via Resend
 
 ---
 
-## 📁 Project Structure
+## 📁 Project Structure:--
 
 ```
 SAAS_project/
