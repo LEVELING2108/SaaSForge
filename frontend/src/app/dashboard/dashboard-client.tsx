@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useUser } from '@clerk/nextjs'
+import { useUser, useAuth } from '@clerk/nextjs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import DashboardLayout from '@/components/layouts/dashboard-layout'
@@ -9,6 +9,7 @@ import { BarChart3, Users, DollarSign, TrendingUp } from 'lucide-react'
 
 export default function DashboardClient() {
   const { user, isLoaded } = useUser()
+  const { getToken } = useAuth()
   const [stats, setStats] = useState({
     total_users: 0,
     new_users_this_week: 0,
@@ -23,7 +24,7 @@ export default function DashboardClient() {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/dashboard/stats`, {
           headers: {
-            'Authorization': `Bearer ${await user?.getToken()}`,
+            'Authorization': `Bearer ${await getToken()}`,
           },
         })
         if (response.ok) {
@@ -40,6 +41,7 @@ export default function DashboardClient() {
     if (isLoaded && user) {
       fetchStats()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded, user])
 
   if (!isLoaded) {
@@ -52,7 +54,7 @@ export default function DashboardClient() {
         {/* Welcome Section */}
         <div>
           <h1 className="text-3xl font-bold">Welcome back, {user?.firstName || 'User'}! 👋</h1>
-          <p className="text-gray-600 mt-2">Here's what's happening with your account today.</p>
+          <p className="text-gray-600 mt-2">Here&apos;s what&apos;s happening with your account today.</p>
         </div>
 
         {/* Stats Grid */}

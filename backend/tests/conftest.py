@@ -1,6 +1,7 @@
 import os
 
 import pytest
+import pytest_asyncio
 from app.core.config import settings
 from app.core.database import Base, async_session_maker, engine
 from app.main import app
@@ -17,7 +18,7 @@ def override_settings():
     yield
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client():
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
@@ -25,7 +26,7 @@ async def client():
         yield ac
 
 
-@pytest.fixture(scope="function")
+@pytest_asyncio.fixture(scope="function")
 async def db_session():
     """Create a fresh database session for each test."""
     async with engine.begin() as conn:

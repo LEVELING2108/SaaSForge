@@ -30,6 +30,7 @@ export default function TeamPage() {
 
   useEffect(() => {
     loadMembers()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const loadMembers = async () => {
