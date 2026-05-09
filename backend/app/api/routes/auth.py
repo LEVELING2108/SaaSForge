@@ -1,16 +1,24 @@
 import logging
 
-from app.api.dependencies import get_current_user
-from app.core.database import get_db
-from app.core.security import (create_access_token, get_password_hash,
-                               verify_password)
-from app.models.user import User
-from app.schemas.team import UpdatePreferences
-from app.schemas.user import (LoginRequest, PasswordReset, Token, UserCreate,
-                              UserInDB, UserResponse, UserUpdate)
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.api.dependencies import get_current_user
+from app.core.database import get_db
+from app.core.security import create_access_token, get_password_hash, verify_password
+from app.models.user import User
+from app.schemas.team import UpdatePreferences
+from app.schemas.user import (
+    LoginRequest,
+    PasswordReset,
+    Token,
+    UserCreate,
+    UserInDB,
+    UserResponse,
+    UserUpdate,
+)
+from app.services.activity_service import log_activity
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 logger = logging.getLogger(__name__)
@@ -42,6 +50,8 @@ async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
     await db.flush()
     await db.refresh(new_user)
 
+    await log_activity(db, new_user.id, "Registered account")
+
     logger.info(f"New user registered: {new_user.email}")
     return new_user
 
@@ -66,6 +76,8 @@ async def login(login_data: LoginRequest, db: AsyncSession = Depends(get_db)):
 
     # Create access token
     access_token = create_access_token(data={"sub": str(user.id)})
+
+    await log_activity(db, user.id, "Logged in")
 
     logger.info(f"User logged in: {user.email}")
     return {"access_token": access_token, "token_type": "bearer"}
@@ -95,6 +107,8 @@ async def update_current_user(
     await db.flush()
     await db.refresh(user)
 
+    await log_activity(db, user.id, "Updated profile")
+
     logger.info(f"User updated: {user.email}")
     return user
 
@@ -117,6 +131,8 @@ async def change_password(
 
     user.hashed_password = get_password_hash(password_data.get("new_password"))
     await db.flush()
+
+    await log_activity(db, user.id, "Changed password")
 
     logger.info(f"Password changed: {user.email}")
     return {"message": "Password changed successfully"}

@@ -73,6 +73,14 @@ SENTRY_DSN=https://your-sentry-dsn
 - **Purpose**: Automatic error tracking and reporting
 - **Get from**: https://sentry.io > Project Settings > Client Keys (DSN)
 
+#### Clerk Authentication
+```env
+CLERK_JWKS_URL=https://your-app-id.clerk.accounts.dev/.well-known/jwks.json
+CLERK_ISSUER=https://your-app-id.clerk.accounts.dev
+```
+- **Purpose**: Validate JWT tokens from Clerk
+- **Get from**: Clerk Dashboard > API Keys (or construct from your Clerk URL)
+
 #### CORS
 ```env
 CORS_ORIGINS=http://localhost:3000,http://localhost:3001

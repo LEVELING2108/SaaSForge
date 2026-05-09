@@ -1,6 +1,7 @@
 import logging
 
 import resend
+
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)

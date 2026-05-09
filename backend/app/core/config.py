@@ -35,6 +35,10 @@ class Settings(BaseSettings):
     # Sentry
     SENTRY_DSN: str = ""
 
+    # Clerk Authentication
+    CLERK_JWKS_URL: str = ""
+    CLERK_ISSUER: str = ""
+
     # CORS
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001"
 

@@ -1,8 +1,9 @@
 from datetime import datetime
 from typing import Optional
 
-from app.models.user import SubscriptionTier
 from pydantic import BaseModel, EmailStr, Field
+
+from app.models.user import SubscriptionTier
 
 
 # User Schemas
@@ -22,6 +23,7 @@ class UserUpdate(BaseModel):
 
 class UserResponse(UserBase):
     id: int
+    clerk_id: Optional[str] = None  # External ID from Clerk (safe for own user)
     is_active: bool
     is_verified: bool
     subscription_tier: SubscriptionTier
@@ -34,7 +36,7 @@ class UserResponse(UserBase):
 
 
 class UserInDB(UserResponse):
-    hashed_password: str
+    hashed_password: Optional[str] = None  # Optional because Clerk users use external auth
     is_superuser: bool
     stripe_customer_id: Optional[str] = None
     stripe_subscription_id: Optional[str] = None

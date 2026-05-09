@@ -1,14 +1,15 @@
 import logging
 
 import stripe
+from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.api.dependencies import get_current_user
 from app.core.config import settings
 from app.core.database import get_db
 from app.models.user import SubscriptionTier, User
-from app.schemas.user import (CreateCheckoutSession, SubscriptionResponse,
-                              UserInDB)
-from fastapi import APIRouter, Depends, HTTPException, Request
-from sqlalchemy.ext.asyncio import AsyncSession
+from app.schemas.user import CreateCheckoutSession, SubscriptionResponse, UserInDB
+from app.services.activity_service import log_activity
 
 router = APIRouter(prefix="/subscriptions", tags=["Subscriptions"])
 logger = logging.getLogger(__name__)
@@ -118,6 +119,13 @@ async def stripe_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     return {"received": True}
 
 
+def get_tier_from_amount(amount: int) -> SubscriptionTier:
+    """Determine subscription tier based on amount (in cents)."""
+    if amount > 2000:  # More than $20
+        return SubscriptionTier.PRO
+    return SubscriptionTier.BASIC
+
+
 async def handle_checkout_completed(session, db: AsyncSession):
     """Handle checkout.session.completed event."""
     user_id = session.get("metadata", {}).get("user_id")
@@ -129,25 +137,23 @@ async def handle_checkout_completed(session, db: AsyncSession):
         return
 
     # Update user subscription tier
-    subscription_id = session.get("subscription")
-    customer_id = session.get("customer")
-
-    user.stripe_subscription_id = subscription_id
-    user.stripe_customer_id = customer_id
-
-    # Determine tier based on price
-    if session.get("amount_total", 0) > 2000:  # More than $20
-        user.subscription_tier = SubscriptionTier.PRO
-    else:
-        user.subscription_tier = SubscriptionTier.BASIC
+    user.stripe_subscription_id = session.get("subscription")
+    user.stripe_customer_id = session.get("customer")
+    user.subscription_tier = get_tier_from_amount(session.get("amount_total", 0))
 
     await db.flush()
+    await log_activity(
+        db,
+        user.id,
+        f"Subscribed to {user.subscription_tier.value} plan",
+        entity_type="subscription",
+        entity_id=user.id,
+    )
     logger.info(f"Subscription completed for user {user_id}")
 
 
 async def handle_subscription_updated(subscription, db: AsyncSession):
     """Handle customer.subscription.updated event."""
-    # Find user by stripe_subscription_id
     from sqlalchemy import select
 
     result = await db.execute(
@@ -160,22 +166,26 @@ async def handle_subscription_updated(subscription, db: AsyncSession):
 
     # Update subscription status
     status = subscription.get("status")
-    cancel_at_period_end = subscription.get("cancel_at_period_end", False)
 
     if status == "active":
-        user.subscription_tier = (
-            SubscriptionTier.PRO
-            if subscription.get("items", {})
+        amount = (
+            subscription.get("items", {})
             .get("data", [{}])[0]
             .get("price", {})
             .get("unit_amount", 0)
-            > 2000
-            else SubscriptionTier.BASIC
         )
-    elif status == "canceled" or status == "unpaid":
+        user.subscription_tier = get_tier_from_amount(amount)
+    elif status in ["canceled", "unpaid"]:
         user.subscription_tier = SubscriptionTier.FREE
 
     await db.flush()
+    await log_activity(
+        db,
+        user.id,
+        f"Subscription updated to {user.subscription_tier.value}",
+        entity_type="subscription",
+        entity_id=user.id,
+    )
     logger.info(f"Subscription updated for user {user.id}")
 
 
@@ -195,4 +205,11 @@ async def handle_subscription_deleted(subscription, db: AsyncSession):
     user.stripe_subscription_id = None
 
     await db.flush()
+    await log_activity(
+        db,
+        user.id,
+        "Subscription canceled",
+        entity_type="subscription",
+        entity_id=user.id,
+    )
     logger.info(f"Subscription deleted for user {user.id}")

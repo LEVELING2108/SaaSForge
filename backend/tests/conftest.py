@@ -2,10 +2,11 @@ import os
 
 import pytest
 import pytest_asyncio
+from httpx import ASGITransport, AsyncClient
+
 from app.core.config import settings
 from app.core.database import Base, async_session_maker, engine
 from app.main import app
-from httpx import ASGITransport, AsyncClient
 
 
 @pytest.fixture(autouse=True)

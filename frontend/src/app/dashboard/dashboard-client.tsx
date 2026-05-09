@@ -16,30 +16,46 @@ export default function DashboardClient() {
     subscription_tier: 'free',
     account_status: 'active',
   })
+  const [activities, setActivities] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Fetch dashboard stats from backend
-    const fetchStats = async () => {
+    // Fetch dashboard data from backend
+    const fetchData = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/dashboard/stats`, {
-          headers: {
-            'Authorization': `Bearer ${await getToken()}`,
-          },
-        })
-        if (response.ok) {
-          const data = await response.json()
-          setStats(data)
+        const token = await getToken()
+        const headers = {
+          'Authorization': `Bearer ${token}`,
+        }
+
+        // Fetch stats and activity concurrently
+        const [statsRes, activityRes] = await Promise.all([
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/dashboard/stats`, { headers }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/dashboard/activity`, { headers })
+        ])
+
+        if (statsRes.ok) {
+          const statsData = await statsRes.json()
+          setStats(statsData)
+        } else {
+          console.error('Failed to fetch stats')
+        }
+
+        if (activityRes.ok) {
+          const activityData = await activityRes.json()
+          setActivities(activityData.activities)
+        } else {
+          console.error('Failed to fetch activity')
         }
       } catch (error) {
-        console.error('Error fetching stats:', error)
+        console.error('Error fetching dashboard data:', error)
       } finally {
         setLoading(false)
       }
     }
 
     if (isLoaded && user) {
-      fetchStats()
+      fetchData()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded, user])
@@ -109,9 +125,17 @@ export default function DashboardClient() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <ActivityItem action="Logged in" time="Just now" />
-              <ActivityItem action="Viewed dashboard" time="2 minutes ago" />
-              <ActivityItem action="Updated profile" time="1 hour ago" />
+              {activities.length > 0 ? (
+                activities.map((activity) => (
+                  <ActivityItem 
+                    key={activity.id} 
+                    action={activity.action} 
+                    time={new Date(activity.timestamp).toLocaleString()} 
+                  />
+                ))
+              ) : (
+                <p className="text-gray-500 text-center py-4">No recent activity found.</p>
+              )}
             </div>
           </CardContent>
         </Card>

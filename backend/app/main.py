@@ -2,11 +2,12 @@ import logging
 from contextlib import asynccontextmanager
 
 import sentry_sdk
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from app.api import api_router
 from app.core.config import settings
 from app.core.database import init_db
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

@@ -1,8 +1,9 @@
 from datetime import datetime
 from typing import Optional
 
-from app.models.user import SubscriptionTier
 from pydantic import BaseModel, EmailStr, Field
+
+from app.models.user import SubscriptionTier
 
 
 # Team Schemas
