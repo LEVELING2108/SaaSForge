@@ -40,4 +40,3 @@ async def log_activity(
     except Exception as e:
         logger.error(f"Failed to log activity: {str(e)}")
         # We don't want to crash the request if logging fails
-

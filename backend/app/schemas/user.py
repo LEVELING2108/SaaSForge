@@ -36,7 +36,9 @@ class UserResponse(UserBase):
 
 
 class UserInDB(UserResponse):
-    hashed_password: Optional[str] = None  # Optional because Clerk users use external auth
+    hashed_password: Optional[str] = (
+        None  # Optional because Clerk users use external auth
+    )
     is_superuser: bool
     stripe_customer_id: Optional[str] = None
     stripe_subscription_id: Optional[str] = None

@@ -43,7 +43,7 @@ async def get_dashboard_stats(
 async def get_recent_activity(
     db: AsyncSession = Depends(get_db),
     current_user: UserInDB = Depends(get_current_user),
-    limit: int = 10
+    limit: int = 10,
 ):
     """Get recent user activity."""
     # Ensure limit is reasonable
@@ -64,7 +64,7 @@ async def get_recent_activity(
                 "action": act.action,
                 "timestamp": act.created_at.isoformat(),
                 "entity_type": act.entity_type,
-                "entity_id": act.entity_id
+                "entity_id": act.entity_id,
             }
             for act in activities
         ]

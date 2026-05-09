@@ -19,7 +19,7 @@ async def get_current_user(
 ) -> UserInDB:
     """
     Get the current authenticated user (supports Clerk and custom JWT).
-    
+
     If a Clerk token is provided, it is verified against Clerk's JWKS.
     If the user does not exist locally, they are synchronized (created).
     """
@@ -78,7 +78,8 @@ async def get_current_user(
                 if user:
                     if not user.is_active:
                         raise HTTPException(
-                            status_code=status.HTTP_403_FORBIDDEN, detail="Inactive user"
+                            status_code=status.HTTP_403_FORBIDDEN,
+                            detail="Inactive user",
                         )
                     return UserInDB.model_validate(user)
     except Exception:

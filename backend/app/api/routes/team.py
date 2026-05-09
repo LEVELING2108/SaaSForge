@@ -209,7 +209,9 @@ async def remove_team_member(
 
     if not is_self:
         if not can_manage:
-            raise HTTPException(status_code=403, detail="Not authorized to remove members")
+            raise HTTPException(
+                status_code=403, detail="Not authorized to remove members"
+            )
 
         # Admins cannot remove owners or other admins
         if current_member.role == "admin" and target_member.role in ["admin", "owner"]:
@@ -222,11 +224,7 @@ async def remove_team_member(
     await db.flush()
 
     # 5. Logging
-    action = (
-        "Left team"
-        if is_self
-        else f"Removed member {member_id} from team"
-    )
+    action = "Left team" if is_self else f"Removed member {member_id} from team"
     try:
         await log_activity(
             db, current_user.id, action, entity_type="team", entity_id=team.id
