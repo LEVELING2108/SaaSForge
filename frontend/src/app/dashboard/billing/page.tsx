@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useUser } from '@clerk/nextjs'
+import { useUser, useAuth } from '@clerk/nextjs'
 import DashboardLayout from '@/components/layouts/dashboard-layout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { subscriptionService } from '@/lib/api'
+import { subscriptionService, authService, api } from '@/lib/api'
 import { useToast } from '@/components/ui/toaster'
 import { Loader2, Check, CreditCard } from 'lucide-react'
 
@@ -23,7 +23,7 @@ const plans: Plan[] = [
     name: 'Basic',
     price: '$19',
     period: '/month',
-    priceId: process.env.NEXT_PUBLIC_STRIPE_BASIC_PRICE_ID || 'price_basic_123',
+    priceId: process.env.NEXT_PUBLIC_STRIPE_BASIC_PRICE_ID || '',
     features: [
       '5 users',
       'Priority support',
@@ -36,7 +36,7 @@ const plans: Plan[] = [
     name: 'Pro',
     price: '$49',
     period: '/month',
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID || 'price_pro_456',
+    priceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID || '',
     features: [
       'Unlimited users',
       '24/7 support',
@@ -51,13 +51,45 @@ const plans: Plan[] = [
 ]
 
 export default function BillingPage() {
-  const { user } = useUser()
+  const { user, isLoaded } = useUser()
+  const { getToken } = useAuth()
   const { toast } = useToast()
   const [currentPlan, setCurrentPlan] = useState('Free')
   const [isLoading, setIsLoading] = useState(false)
   const [isPortalLoading, setIsPortalLoading] = useState(false)
+  const [isInitialLoading, setIsInitialLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchUserPlan = async () => {
+      try {
+        const token = await getToken()
+        if (token) {
+           api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+        }
+        const userData = await authService.getCurrentUser()
+        setCurrentPlan(userData.subscription_tier || 'Free')
+      } catch (error) {
+        console.error('Failed to fetch user plan:', error)
+      } finally {
+        setIsInitialLoading(false)
+      }
+    }
+
+    if (isLoaded && user) {
+      fetchUserPlan()
+    }
+  }, [isLoaded, user, getToken])
 
   const handleUpgrade = async (plan: Plan) => {
+    if (!plan.priceId) {
+      toast({
+        title: 'Configuration Error',
+        description: 'Stripe Price ID is not configured.',
+        variant: 'destructive',
+      })
+      return
+    }
+
     setIsLoading(true)
     try {
       const baseUrl = window.location.origin
@@ -67,7 +99,6 @@ export default function BillingPage() {
         `${baseUrl}/dashboard/billing?canceled=true`
       )
 
-      // Redirect to Stripe Checkout
       window.location.href = response.url
     } catch (error: any) {
       toast({
@@ -96,6 +127,18 @@ export default function BillingPage() {
     }
   }
 
+  if (isInitialLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        </div>
+      </DashboardLayout>
+    )
+  }
+
+  const formattedPlan = currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1).toLowerCase()
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -114,15 +157,15 @@ export default function BillingPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
                 <div>
-                  <h3 className="text-lg font-semibold">{currentPlan} Plan</h3>
+                  <h3 className="text-lg font-semibold">{formattedPlan} Plan</h3>
                   <p className="text-sm text-gray-600">
-                    {currentPlan === 'Free'
+                    {formattedPlan === 'Free'
                       ? 'Basic features included'
-                      : `Thank you for being a ${currentPlan} subscriber!`}
+                      : `Thank you for being a ${formattedPlan} subscriber!`}
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  {currentPlan !== 'Free' && (
+                  {formattedPlan !== 'Free' && (
                     <Button
                       variant="outline"
                       onClick={handleManageBilling}
@@ -133,8 +176,9 @@ export default function BillingPage() {
                       Manage Billing
                     </Button>
                   )}
-                  {currentPlan === 'Free' && (
-                    <Button onClick={() => handleUpgrade(plans[0])}>
+                  {formattedPlan === 'Free' && (
+                    <Button onClick={() => handleUpgrade(plans[0])} disabled={isLoading}>
+                      {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       Upgrade Plan
                     </Button>
                   )}
@@ -156,7 +200,7 @@ export default function BillingPage() {
                 <PlanCard
                   key={plan.name}
                   plan={plan}
-                  currentPlan={currentPlan}
+                  currentPlan={formattedPlan}
                   isLoading={isLoading}
                   onUpgrade={handleUpgrade}
                 />
@@ -193,6 +237,8 @@ function PlanCard({
   isLoading: boolean
   onUpgrade: (plan: Plan) => void
 }) {
+  const isCurrent = currentPlan.toLowerCase() === plan.name.toLowerCase()
+
   return (
     <div
       className={`border rounded-lg p-6 space-y-4 ${
@@ -221,14 +267,14 @@ function PlanCard({
         className="w-full"
         variant={plan.popular ? 'default' : 'outline'}
         onClick={() => onUpgrade(plan)}
-        disabled={isLoading || currentPlan.toLowerCase() === plan.name.toLowerCase()}
+        disabled={isLoading || isCurrent}
       >
         {isLoading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Processing...
           </>
-        ) : currentPlan.toLowerCase() === plan.name.toLowerCase() ? (
+        ) : isCurrent ? (
           'Current Plan'
         ) : (
           `Upgrade to ${plan.name}`

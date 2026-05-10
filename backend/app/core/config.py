@@ -38,6 +38,7 @@ class Settings(BaseSettings):
     # Clerk Authentication
     CLERK_JWKS_URL: str = ""
     CLERK_ISSUER: str = ""
+    CLERK_WEBHOOK_SECRET: str = ""
 
     # CORS
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001"
