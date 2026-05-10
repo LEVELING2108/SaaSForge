@@ -39,6 +39,35 @@ async def get_dashboard_stats(
     }
 
 
+@router.get("/stats/growth")
+async def get_growth_stats(
+    db: AsyncSession = Depends(get_db),
+    current_user: UserInDB = Depends(get_current_user),
+):
+    """Get daily registration stats for the last 30 days."""
+    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+
+    # Query registrations grouped by day
+    # Note: Using cast to Date for database compatibility
+    from sqlalchemy import Date, cast
+
+    result = await db.execute(
+        select(
+            cast(User.created_at, Date).label("date"),
+            func.count(User.id).label("count"),
+        )
+        .where(User.created_at >= thirty_days_ago)
+        .group_by(cast(User.created_at, Date))
+        .order_by(cast(User.created_at, Date))
+    )
+
+    growth_data = [
+        {"date": row.date.isoformat(), "count": row.count} for row in result.all()
+    ]
+
+    return {"growth": growth_data}
+
+
 @router.get("/activity")
 async def get_recent_activity(
     db: AsyncSession = Depends(get_db),

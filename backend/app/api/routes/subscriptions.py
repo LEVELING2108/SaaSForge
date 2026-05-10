@@ -10,6 +10,7 @@ from app.core.database import get_db
 from app.models.user import SubscriptionTier, User
 from app.schemas.user import CreateCheckoutSession, SubscriptionResponse, UserInDB
 from app.services.activity_service import log_activity
+from app.services.email_service import send_subscription_confirmation_email
 
 router = APIRouter(prefix="/subscriptions", tags=["Subscriptions"])
 logger = logging.getLogger(__name__)
@@ -149,6 +150,15 @@ async def handle_checkout_completed(session, db: AsyncSession):
         entity_type="subscription",
         entity_id=user.id,
     )
+
+    # Send subscription confirmation email
+    try:
+        await send_subscription_confirmation_email(
+            user.email, user.subscription_tier.value
+        )
+    except Exception as e:
+        logger.error(f"Failed to send subscription confirmation email: {str(e)}")
+
     logger.info(f"Subscription completed for user {user_id}")
 
 

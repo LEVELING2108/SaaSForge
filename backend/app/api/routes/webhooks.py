@@ -9,6 +9,7 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.models.user import User
 from app.services.activity_service import log_activity
+from app.services.email_service import send_welcome_email
 
 router = APIRouter(prefix="/webhooks", tags=["Webhooks"])
 logger = logging.getLogger(__name__)
@@ -84,6 +85,12 @@ async def handle_user_created(data: dict, db: AsyncSession):
             await log_activity(db, user.id, "Account synced via Clerk webhook")
         except Exception:
             pass
+
+        # Send welcome email
+        try:
+            await send_welcome_email(primary_email, data.get("first_name", "User"))
+        except Exception as e:
+            logger.error(f"Error sending welcome email: {str(e)}")
 
         logger.info(f"User created via webhook: {primary_email}")
 

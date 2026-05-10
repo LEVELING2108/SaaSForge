@@ -17,6 +17,7 @@ export default function DashboardClient() {
     account_status: 'active',
   })
   const [activities, setActivities] = useState<any[]>([])
+  const [growthData, setGrowthData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -28,24 +29,26 @@ export default function DashboardClient() {
           'Authorization': `Bearer ${token}`,
         }
 
-        // Fetch stats and activity concurrently
-        const [statsRes, activityRes] = await Promise.all([
+        // Fetch stats, activity and growth concurrently
+        const [statsRes, activityRes, growthRes] = await Promise.all([
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/dashboard/stats`, { headers }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/dashboard/activity`, { headers })
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/dashboard/activity`, { headers }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/dashboard/stats/growth`, { headers })
         ])
 
         if (statsRes.ok) {
           const statsData = await statsRes.json()
           setStats(statsData)
-        } else {
-          console.error('Failed to fetch stats')
         }
 
         if (activityRes.ok) {
           const activityData = await activityRes.json()
           setActivities(activityData.activities)
-        } else {
-          console.error('Failed to fetch activity')
+        }
+
+        if (growthRes.ok) {
+          const growth = await growthRes.json()
+          setGrowthData(growth.growth)
         }
       } catch (error) {
         console.error('Error fetching dashboard data:', error)
@@ -117,28 +120,47 @@ export default function DashboardClient() {
           </CardContent>
         </Card>
 
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Your latest actions</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {activities.length > 0 ? (
-                activities.map((activity) => (
-                  <ActivityItem 
-                    key={activity.id} 
-                    action={activity.action} 
-                    time={new Date(activity.timestamp).toLocaleString()} 
-                  />
-                ))
+        {/* Analytics & Activity */}
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Growth Trend</CardTitle>
+              <CardDescription>User registrations (last 30 days)</CardDescription>
+            </CardHeader>
+            <CardContent className="h-[300px] flex items-center justify-center border-t">
+              {growthData.length > 0 ? (
+                <div className="text-muted-foreground text-sm">
+                  {/* You can integrate Recharts or Chart.js here */}
+                  [ Chart Data Ready: {growthData.length} days of data ]
+                </div>
               ) : (
-                <p className="text-gray-500 text-center py-4">No recent activity found.</p>
+                <p className="text-gray-500">No growth data available yet.</p>
               )}
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Activity</CardTitle>
+              <CardDescription>Your latest actions</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {activities.length > 0 ? (
+                  activities.map((activity) => (
+                    <ActivityItem 
+                      key={activity.id} 
+                      action={activity.action} 
+                      time={new Date(activity.timestamp).toLocaleString()} 
+                    />
+                  ))
+                ) : (
+                  <p className="text-gray-500 text-center py-4">No recent activity found.</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </DashboardLayout>
   )
