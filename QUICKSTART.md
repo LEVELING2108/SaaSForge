@@ -17,7 +17,7 @@ Get your SaaS application running in 5 minutes!
    cd SAAS_project
    ```
 
-2. **Double-click** `start.bat` (or run):
+2. **Run the services**:
    ```bash
    docker-compose up -d
    ```
@@ -44,18 +44,24 @@ Get your SaaS application running in 5 minutes!
 
 ### Steps
 
-#### 1. Run Setup Script
-Double-click `setup.bat` or run:
+#### 1. Setup Backend
 ```bash
-# Windows
-setup.bat
-
-# macOS/Linux
-chmod +x setup.sh
-./setup.sh
+cd backend
+python -m venv venv
+# Windows: venv\Scripts\activate
+# Mac/Linux: source venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
 ```
 
-#### 2. Start PostgreSQL
+#### 2. Setup Frontend
+```bash
+cd frontend
+npm install
+cp .env.example .env.local
+```
+
+#### 3. Start PostgreSQL
 ```bash
 # Option A: Using Docker
 docker run --name saas-postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=saas_db -p 5432:5432 -d postgres:15-alpine
@@ -64,7 +70,7 @@ docker run --name saas-postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=saa
 # Make sure PostgreSQL is running
 ```
 
-#### 3. Start Backend
+#### 4. Start Backend
 ```bash
 cd backend
 venv\Scripts\activate  # Windows
@@ -72,13 +78,13 @@ venv\Scripts\activate  # Windows
 uvicorn app.main:app --reload
 ```
 
-#### 4. Start Frontend (New Terminal)
+#### 5. Start Frontend (New Terminal)
 ```bash
 cd frontend
 npm run dev
 ```
 
-#### 5. Open Browser
+#### 6. Open Browser
 - Frontend: http://localhost:3000
 - Backend: http://localhost:8000
 
