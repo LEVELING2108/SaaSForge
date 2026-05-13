@@ -39,3 +39,9 @@ Thumbs.db
 
 # Stripe
 stripe_webhook_logs/
+
+# Local utility scripts
+manage_user.py
+test_url.py
+list_users.py
+check_db.py

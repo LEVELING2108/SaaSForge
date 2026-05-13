@@ -9,13 +9,13 @@ from app.core.database import Base, async_session_maker, engine
 from app.main import app
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=True, scope="session")
 def override_settings():
-    """Override settings for testing."""
-    os.environ["DATABASE_URL"] = os.getenv(
-        "DATABASE_URL", "postgresql://testuser:testpass@localhost:5432/testdb"
-    )
-    os.environ["SECRET_KEY"] = os.getenv("SECRET_KEY", "test-secret-key")
+    """Override settings for testing at the session level."""
+    os.environ["DATABASE_URL"] = "postgresql://testuser:testpass@localhost:5432/testdb"
+    os.environ["SECRET_KEY"] = "test-secret-key"
+    os.environ["CLERK_JWKS_URL"] = ""
+    os.environ["CLERK_ISSUER"] = ""
     yield
 
 

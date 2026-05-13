@@ -26,7 +26,26 @@ async def create_checkout_session(
     db: AsyncSession = Depends(get_db),
     current_user: UserInDB = Depends(get_current_user),
 ):
-    """Create a Stripe checkout session."""
+    """Create a Stripe checkout session or simulate one in dev mode."""
+    # Development Bypass: If Stripe is not configured, simulate success
+    if not settings.STRIPE_SECRET_KEY or settings.STRIPE_SECRET_KEY == "sk_test_your_key":
+        logger.info(f"Simulating checkout for user {current_user.id} (Dev Mode)")
+        
+        user = await db.get(User, current_user.id)
+        # Upgrade to PRO for demo purposes
+        user.subscription_tier = SubscriptionTier.PRO
+        await db.flush()
+        
+        await log_activity(
+            db,
+            user.id,
+            "Simulated checkout: Upgraded to PRO (Dev Mode)",
+            entity_type="subscription",
+            entity_id=user.id,
+        )
+        
+        return {"url": session_data.success_url}
+
     try:
         # Get or create Stripe customer
         if not current_user.stripe_customer_id:

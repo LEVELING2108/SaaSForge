@@ -3,8 +3,9 @@ from sqlalchemy.orm import DeclarativeBase
 
 from app.core.config import settings
 
-# Ensure async driver is used
+# Ensure async driver is used and localhost is resolved to 127.0.0.1
 db_url = settings.DATABASE_URL
+db_url = db_url.replace("localhost", "127.0.0.1")
 if db_url.startswith("postgresql://"):
     db_url = db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
 
