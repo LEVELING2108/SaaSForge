@@ -48,6 +48,7 @@ This is a modern, full-stack SaaS application built with a decoupled architectur
 - **Language**: TypeScript
 - **Styling**: TailwindCSS
 - **UI Components**: Shadcn UI (Radix UI primitives)
+- **Charts**: Recharts
 - **Authentication**: Clerk
 - **State Management**: React Query (TanStack Query)
 - **HTTP Client**: Axios
@@ -55,11 +56,11 @@ This is a modern, full-stack SaaS application built with a decoupled architectur
 
 ### Backend
 - **Framework**: FastAPI (Python)
-- **Language**: Python 3.11+
+- **Language**: Python 3.12+
 - **Database ORM**: SQLAlchemy (Async)
 - **Authentication**: JWT (JSON Web Tokens)
 - **Password Hashing**: Passlib (bcrypt)
-- **Payment Processing**: Stripe
+- **Payment Processing**: Stripe (with Dev Mode Simulation)
 - **Email Service**: Resend
 - **Error Monitoring**: Sentry
 
@@ -162,12 +163,18 @@ Frontend → Attach JWT Token → Backend Validates Token → Process Request
 ```
 1. User clicks "Upgrade" in frontend
 2. Frontend calls /api/v1/subscriptions/create-checkout-session
-3. Backend creates Stripe Checkout Session
-4. User redirected to Stripe payment page
-5. User completes payment
-6. Stripe sends webhook to /api/v1/subscriptions/webhook
-7. Backend updates user subscription tier
-8. User redirected back to success URL
+3. Backend checks for STRIPE_SECRET_KEY:
+   a. If KEY IS MISSING or DEFAULT (Dev Mode):
+      - Backend simulates success
+      - Backend upgrades user tier to PRO immediately
+      - Backend returns success_url
+   b. If VALID KEY IS PRESENT:
+      - Backend creates real Stripe Checkout Session
+      - User redirected to Stripe payment page
+      - User completes payment
+      - Stripe sends webhook to /api/v1/subscriptions/webhook
+      - Backend updates user subscription tier
+4. User redirected back to success URL
 ```
 
 ### Subscription Management

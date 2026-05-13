@@ -47,30 +47,25 @@
 
 ## ✨ Key Features
 
+### 📊 Enhanced Dashboard (New)
+- **Live Analytics:** Real-time growth trends visualized with **Recharts**.
+- **Interactive Stats:** Dynamic calculation of user growth, subscriptions, and system health.
+- **Activity Timeline:** A beautiful, real-time audit log of system and user events.
+- **Quick Actions:** One-click access to billing, team settings, and API docs.
+
 ### 🔐 Enterprise-Grade Authentication
 - **Clerk Integration:** Seamless sign-in/up with automatic identity syncing to local PostgreSQL.
 - **Hybrid Bridge:** Backend verifies Clerk RS256 tokens using live JWKS fetching.
 - **Strict Authorization:** Granular role-based access control (Owner, Admin, Member).
 
-### 💳 Subscription Lifecycle
+### 💳 Subscription Lifecycle (with Dev Mode)
 - **Stripe Integration:** Pre-built checkout sessions and billing portal.
+- **🛠️ Dev Mode Bypass:** Test PRO features instantly without a Stripe account. Simulate checkouts with a single click.
 - **Webhook Engine:** Automated tier updates (`FREE`, `BASIC`, `PRO`) via secure Stripe events.
-- **Pricing Abstraction:** Easily configurable pricing logic based on transaction amounts.
 
 ### 👥 Persistent Team Management
 - **Database-Backed Teams:** Create teams, invite members, and manage roles permanently.
 - **Auto-Provisioning:** Automatic team creation for new users on their first dashboard visit.
-- **Safety First:** Protected deletion logic preventing "orphaned" teams.
-
-### 📊 Live Activity Tracking
-- **Unified Audit Logs:** Real-time logging of logins, profile changes, and team events.
-- **Dashboard Feed:** High-performance concurrent fetching of user stats and recent actions.
-- **Optimized Queries:** Indexed database columns for lightning-fast activity retrieval.
-
-### 🏗️ Production Infrastructure
-- **Alembic Migrations:** Version-controlled database schema evolutions.
-- **CI/CD Ready:** Automated linting, formatting, and unit tests.
-- **Async Architecture:** Fully non-blocking backend for maximum scalability.
 
 ---
 
@@ -78,50 +73,27 @@
 
 ```
 SAAS_project/
-├── frontend/                 # Next.js application
+├── frontend/                 # Next.js 14 application
 │   ├── src/
 │   │   ├── app/             # App Router (Dashboard, Auth, Landing)
-│   │   ├── components/      # UI components (Shadcn)
+│   │   ├── components/      # UI components (Shadcn + Recharts)
 │   │   └── lib/             # API Client & Utilities
 │
 ├── backend/                 # FastAPI application
 │   ├── app/
-│   │   ├── api/routes/      # Auth, Team, Dashboard, Subscriptions
+│   │   ├── api/routes/      # Auth, Team, Dashboard, Subscriptions (with Dev Mode)
 │   │   ├── core/            # Security (Clerk Bridge), Database, Config
 │   │   ├── models/          # SQLAlchemy Async Models (User, Team, AuditLog)
 │   │   ├── schemas/         # Pydantic V2 Type Safety
 │   │   └── services/        # Activity Logging, Email, Business Logic
 │   ├── migrations/          # Alembic Async Migration Scripts
 │   ├── tests/               # Pytest Suite
-│   └── requirements.txt     # Python Dependencies
+│   └── manage_user.py      # (Local) CLI for manual user upgrades
 │
-├── docker-compose.yml       # Orchestration
+├── docker-compose.yml       # Containerized Orchestration
 ├── README.md               # You are here
 └── ENVIRONMENT.md         # Env var reference
 ```
-
----
-
-## 🌐 Core API Endpoints
-
-### 🔐 Authentication & Identity
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/auth/me` | Get synced profile |
-| PUT | `/api/v1/auth/me` | Update profile + Log activity |
-
-### 👥 Team Management
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/team/members` | List team with roles |
-| POST | `/api/v1/team/invite` | Invite via email |
-| DELETE | `/api/v1/team/members/{id}` | Secure removal/Leave team |
-
-### 📈 Dashboard & Activity
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/dashboard/stats` | Live system statistics |
-| GET | `/api/v1/dashboard/activity` | Recent user audit logs |
 
 ---
 
@@ -129,26 +101,44 @@ SAAS_project/
 
 ### 1. Prerequisites
 - Node.js 18+ & Python 3.12+
-- PostgreSQL instance
+- PostgreSQL instance (Local or Supabase)
 
-### 2. Backend Setup
+### 2. Manual Setup (Recommended for Local Dev)
+
+#### Backend Setup
 ```bash
 cd backend
 python -m venv venv
 source venv/bin/activate  # venv\Scripts\activate on Windows
 pip install -r requirements.txt
-# Run migrations
-alembic upgrade head
-# Start server
+cp .env.example .env
+# Edit .env with your PostgreSQL credentials
 uvicorn app.main:app --reload
 ```
 
-### 3. Frontend Setup
+#### Frontend Setup
 ```bash
 cd frontend
 npm install
+cp .env.example .env.local
+# Add your Clerk API keys to .env.local
 npm run dev
 ```
+
+### 3. Docker Setup (Alternative)
+```bash
+docker-compose up -d
+```
+
+---
+
+## 🧪 Development Mode (Bypassing Stripe)
+
+If you don't have a Stripe account or are restricted by region (e.g., India), you can use the built-in **Dev Mode**:
+
+1.  Leave `STRIPE_SECRET_KEY` empty or as the default in `backend/.env`.
+2.  Click **"Upgrade"** on the dashboard.
+3.  The backend will detect the missing key, simulate a successful payment, and upgrade your user to the **PRO** tier automatically.
 
 ---
 

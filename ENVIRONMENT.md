@@ -41,9 +41,9 @@ STRIPE_WEBHOOK_SECRET=whsec_your_secret
 STRIPE_PRICE_ID_BASIC=price_your_basic_price_id
 STRIPE_PRICE_ID_PRO=price_your_pro_price_id
 ```
-- **STRIPE_SECRET_KEY**: From Stripe Dashboard > Developers > API keys
-- **STRIPE_WEBHOOK_SECRET**: From Stripe CLI or Dashboard webhook configuration
-- **STRIPE_PRICE_ID_***: Create in Stripe Dashboard > Products
+- **STRIPE_SECRET_KEY**: From Stripe Dashboard. If left blank or as default, the app enters **Dev Mode** (simulated success).
+- **STRIPE_WEBHOOK_SECRET**: From Stripe CLI or Dashboard.
+- **STRIPE_PRICE_ID_***: Create in Stripe Dashboard > Products.
 - **Get from**: https://dashboard.stripe.com
 
 #### Email (Resend)
